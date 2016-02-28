@@ -8,7 +8,7 @@
 # cálculos y los ficheros resultantes. Nota: también podría ser un fichero Rmarkdown (Rmd).
 
 
-setwd("/home/yazquez/universidad/FESTAD/work/Ejercicio Final/data")
+setwd("/home/yazquez/Dev/R/dsbd-festad/data")
 
 # ------------------------------------------------------------------------------------------------------------------------------------------
 # Ejercicio 1
@@ -213,8 +213,34 @@ names[l]="Otros paises"
 etiquetas = paste(names," ",over_5,"%",sep="")
 pie(over_5,labels=etiquetas,col = rainbow(length(etiquetas)),cex=0.8, main="Distribución jugadores Foráneos")
 
-# 2) Estudio de la evolución, en cuanto a numero de jugadores, de los jugadores foraneos. 
+# 3) Estudio de la evolución, en cuanto a numero de jugadores debutantes, de los jugadores foraneos. 
 #----------------------------------------------------------------
+
+# Obtenemos todos los jugadores nacidos fuera de USA
+foreign_players = subset(master, master$birthCountry!="USA", select = c("debut"))
+
+# Creamos una función que extrae el año de la fecha de debut,
+# teniendo en cuenta los distintos formatos presentes.
+get_debut_year = function(d) {
+  if (grepl("-", d)) {
+    # Fechas tipo 1890-04-21 
+    return(as.integer(substr(d,1,4)))
+  } else{
+    # Fechas tipo 1890-04-21 
+    return(as.integer(substr(d,(nchar(d)+1)-4,nchar(d))))
+  }
+}
+
+# Añadimos la columna "year" a nuestro dataframe
+foreign_players = cbind(foreign_players, year=mapply(get_debut_year, foreign_players$debut))
+
+# Obtenemos la tabla de frecuencias absolutas, agrupando en 40 grupos para hacer la grafica más manejable
+FrecAbs = table(cut(foreign_players$year,breaks = 40))
+#Pintamos la frafica 
+plot(FrecAbs, type="h", xlab="Año de debut", ylab="Número de jugadores", lwd=1, lty=2, main="Evolución de debuts de jugadores foraneos")
+lines(FrecAbs,type="l",lwd=2,col="green")
+
+
 
 
 
